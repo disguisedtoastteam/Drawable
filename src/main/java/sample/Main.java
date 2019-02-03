@@ -19,21 +19,14 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("/layouts/sample.fxml"));
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
 
 
-    public static void main(String[] args) throws GitAPIException {
-        cloneRepo();
+    public static void main(String[] args)  {
         launch(args);
     }
 
-    public static void cloneRepo() throws GitAPIException {
-        CloneCommand cloneCommand = Git.cloneRepository()
-                .setURI("https://github.com/CodingLandChallengers/Node.git")
-                .setDirectory(new File("D:\\Users\\mabde\\Desktop\\test_java"))
-                .setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out)));
-        cloneCommand.call();
-    }
+
 }

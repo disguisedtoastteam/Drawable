@@ -1,0 +1,12 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+	logallrefupdates = false
+	precomposeunicode = true
+[remote "https://github.com/selimmouelhi/projetdbll.git"]
+	url = https://github.com/selimmouelhi/projetdbll.git
+	fetch = +refs/heads/*:refs/heads/*
+[branch "master"]
+	remote = https://github.com/selimmouelhi/projetdbll.git
+	merge = refs/heads/master
