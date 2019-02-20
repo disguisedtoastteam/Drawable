@@ -2,8 +2,15 @@ package CamStream;
 
 
 
+
 import java.awt.image.BufferedImage;
 import java.util.concurrent.TimeUnit;
+
+
+import code_generation.entities.DetectedObject;
+import code_generation.entities.views.ConstraintLayout;
+import code_generation.service.CodeGenerator;
+import code_generation.service.ShapeDetectionService;
 
 import com.github.sarxos.webcam.Webcam;
 import javafx.application.Application;
@@ -31,6 +38,16 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 
+import javax.imageio.ImageIO;
+import javax.xml.bind.JAXBException;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+
+
 
 public class WebCamAppLauncher extends Application {
 
@@ -47,6 +64,34 @@ public class WebCamAppLauncher extends Application {
     private Button btnCamreaStop;
     private Button btnCamreaStart;
     private Button btnCameraDispose;
+
+
+    private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
+        @Override
+        public void onUploaded(List<DetectedObject> objects) {
+            try {
+                ConstraintLayout layout = CodeGenerator.parse(objects);
+                CodeGenerator.generateLayoutFile(layout);
+                File file = getFileFromImage();
+                ShapeDetectionService.upload(file, mUploadCallback);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("creating file failed");
+            } catch (JAXBException e) {
+                e.printStackTrace();
+                System.out.println("marshalling layout failed");
+            }
+        }
+    };
+
+    private File getFileFromImage() throws IOException {
+        File file = new File("frame.jpg");
+        ImageIO.write(grabbedImage, "jpg", file);
+        return file;
+    }
+
+    private boolean mDidUpload = false;
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -81,6 +126,7 @@ public class WebCamAppLauncher extends Application {
         primaryStage.centerOnScreen();
         primaryStage.show();
 
+
         Platform.runLater(new Runnable() {
 
             @Override
@@ -89,6 +135,9 @@ public class WebCamAppLauncher extends Application {
                 setImageViewSize();
             }
         });
+
+        Platform.runLater(this::setImageViewSize);
+
 
     }
 
@@ -191,6 +240,11 @@ public class WebCamAppLauncher extends Application {
                     try {
                         if ((grabbedImage = webCam.getImage()) != null) {
 
+
+                            if(!mDidUpload){
+                                ShapeDetectionService.upload(getFileFromImage(), mUploadCallback);
+                                mDidUpload = true;
+                            }
 //							System.out.println("Captured Image height*width:"+grabbedImage.getWidth()+"*"+grabbedImage.getHeight());
                             Platform.runLater(new Runnable() {
                                 @Override
@@ -271,6 +325,9 @@ public class WebCamAppLauncher extends Application {
 
         stopCamera = true;
         webCam.close();
+
+
+       // Webcam.shutdown();
 
         btnCamreaStart.setDisable(true);
         btnCamreaStop.setDisable(true);
