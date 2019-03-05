@@ -31,7 +31,7 @@
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="19.0">
                <image>
-                  <Image url="/pictures/gear (1).png" />
+                  <Image url="/drawable/homeDrawables/gear (1).png" />
                </image>
             </ImageView>
          </graphic></Button>
